@@ -5,3 +5,10 @@
 - [] Modulo 3: CI/CD
 
 
+## Herramientas del Curso
+- GIT
+- DOCKER
+- JENKINS
+- KUBERNETES
+
+
