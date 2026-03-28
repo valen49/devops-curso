@@ -13,3 +13,12 @@ Docker: Docker version 29.3.1, build c2be9cc
 ## Usuarios del sistema
 - usuario administrador con acceso bash
 - usuario gitlab-runner para pipelines CI/CD
+
+## Red
+Hostname: cx-server
+Conexion: SSH desde Windows
+
+## Servicios corriendo
+- gitlab-runner: activo
+- sshd: activo
+- docker: activo
