@@ -1,0 +1,21 @@
+name: Mi primer pipeline CI
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  verificar-entorno:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v3
+
+      - name: Ver sistema operativo
+        run: uname -a
+
+      - name: Ver archivos del repo
+        run: ls -la
+
+      - name: Mensaje final
+        run: echo "Pipeline ejecutado correctamente"
