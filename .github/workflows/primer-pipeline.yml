@@ -19,3 +19,13 @@ jobs:
 
       - name: Mensaje final
         run: echo "Pipeline ejecutado correctamente"
+
+      - name: Instalar dependencias
+        run: sudo apt-get install -y curl
+
+      - name: Verificar conectividad
+        run: curl -s https://api.github.com | head -5
+
+      - name: Mostrar fecha y hora
+        run: date
+
