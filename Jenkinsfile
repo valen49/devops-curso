@@ -1,38 +1,34 @@
 pipeline {
     agent any
-    
     stages {
         stage('Build') {
             steps {
-                echo 'Construyendo la aplicacion...'
+                echo 'Building application...'
                 sh 'mkdir -p dist'
                 sh 'echo version=1.0.0 > dist/build.txt'
             }
         }
-        
         stage('Test') {
             steps {
-                echo 'Corriendo tests...'
+                echo 'Running tests...'
                 sh 'echo Test 1: OK'
                 sh 'echo Test 2: OK'
-                sh 'echo Todos los tests pasaron'
+                sh 'echo All tests passed'
             }
         }
-        
         stage('Deploy') {
             steps {
-                echo 'Desplegando...'
-                sh 'echo Deploy completado exitosamente'
+                echo 'Deploying application...'
+                sh 'echo Deploy completed successfully'
             }
         }
     }
-    
     post {
         success {
-            echo 'Pipeline completado exitosamente'
+            echo 'Pipeline completed successfully'
         }
         failure {
-            echo 'Pipeline fallo'
+            echo 'Pipeline failed'
         }
     }
 }
