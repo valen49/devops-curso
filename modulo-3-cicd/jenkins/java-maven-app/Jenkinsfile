@@ -49,7 +49,10 @@ pipeline {
         stage('Publish to S3') {
             // Este stage usa amazon/aws-cli porque Maven no tiene AWS CLI instalada.
             // Separar responsabilidades por imagen es la práctica correcta.
-            agent { docker { image 'amazon/aws-cli:latest' args '--entrypoint=' } }
+            // args '--entrypoint=': la imagen amazon/aws-cli tiene un entrypoint
+            // personalizado incompatible con Jenkins. Forzarlo vacío permite que
+            // Jenkins tome el control del contenedor.
+            agent { docker { image 'amazon/aws-cli:latest'; args '--entrypoint=' } }
             steps {
                 // unstash recupera el JAR guardado por el stage anterior
                 // y lo deja disponible en el workspace de este contenedor.
