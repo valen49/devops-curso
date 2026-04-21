@@ -1,5 +1,7 @@
 pipeline {
-    agent { docker { image 'maven:3.9-eclipse-temurin-17' } }
+    // agent none: cada stage define su propio agente Docker.
+    // Permite usar imágenes distintas por stage sin contaminar el entorno.
+    agent none
 
     environment {
         AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
@@ -16,12 +18,14 @@ pipeline {
 
     stages {
         stage('Checkout') {
+            agent { docker { image 'maven:3.9-eclipse-temurin-17' } }
             steps {
                 checkout scm
             }
         }
 
         stage('Build & Test') {
+            agent { docker { image 'maven:3.9-eclipse-temurin-17' } }
             steps {
                 dir('modulo-3-cicd/jenkins/java-maven-app') {
                     sh 'mvn clean test'
@@ -30,22 +34,31 @@ pipeline {
         }
 
         stage('Package') {
+            agent { docker { image 'maven:3.9-eclipse-temurin-17' } }
             steps {
                 dir('modulo-3-cicd/jenkins/java-maven-app') {
                     sh 'mvn package -DskipTests'
+                    // stash guarda el JAR generado en el controller de Jenkins.
+                    // Es necesario porque cada stage corre en un contenedor distinto
+                    // y los contenedores no comparten filesystem entre sí.
+                    stash includes: 'target/*.jar', name: 'artifact'
                 }
             }
         }
 
         stage('Publish to S3') {
+            // Este stage usa amazon/aws-cli porque Maven no tiene AWS CLI instalada.
+            // Separar responsabilidades por imagen es la práctica correcta.
+            agent { docker { image 'amazon/aws-cli:latest' } }
             steps {
-                dir('modulo-3-cicd/jenkins/java-maven-app') {
-                    sh """
-                        aws s3 cp target/java-maven-app-1.0-SNAPSHOT.jar \
-                        s3://${S3_BUCKET}/builds/${APP_VERSION}/java-maven-app-${APP_VERSION}.jar \
-                        --region ${AWS_REGION}
-                    """
-                }
+                // unstash recupera el JAR guardado por el stage anterior
+                // y lo deja disponible en el workspace de este contenedor.
+                unstash 'artifact'
+                sh """
+                    aws s3 cp target/java-maven-app-1.0-SNAPSHOT.jar \
+                    s3://${S3_BUCKET}/builds/${APP_VERSION}/java-maven-app-${APP_VERSION}.jar \
+                    --region ${AWS_REGION}
+                """
             }
         }
     }
