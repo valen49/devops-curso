@@ -1,5 +1,5 @@
 pipeline {
-    agent { docker { image 'maven:3.8.7-openjdk-17-slim' } }
+    agent { docker { image 'maven:3.9-eclipse-temurin-17' } }
 
     environment {
         AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
