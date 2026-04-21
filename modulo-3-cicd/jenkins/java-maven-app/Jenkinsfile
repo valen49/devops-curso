@@ -1,0 +1,61 @@
+pipeline {
+    agent { docker { image 'maven:3.8.7-openjdk-17' } }
+
+    environment {
+        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        AWS_REGION            = 'sa-east-1'
+        S3_BUCKET             = 'devops-curso-artifacts-valen'
+        APP_VERSION           = "1.0.${BUILD_NUMBER}"
+    }
+
+    options {
+        disableConcurrentBuilds()
+        timeout(time: 15, unit: 'MINUTES')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build & Test') {
+            steps {
+                dir('modulo-3-cicd/jenkins/java-maven-app') {
+                    sh 'mvn clean test'
+                }
+            }
+        }
+
+        stage('Package') {
+            steps {
+                dir('modulo-3-cicd/jenkins/java-maven-app') {
+                    sh 'mvn package -DskipTests'
+                }
+            }
+        }
+
+        stage('Publish to S3') {
+            steps {
+                dir('modulo-3-cicd/jenkins/java-maven-app') {
+                    sh """
+                        aws s3 cp target/java-maven-app-1.0-SNAPSHOT.jar \
+                        s3://${S3_BUCKET}/builds/${APP_VERSION}/java-maven-app-${APP_VERSION}.jar \
+                        --region ${AWS_REGION}
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Artifact published: s3://${S3_BUCKET}/builds/${APP_VERSION}/"
+        }
+        failure {
+            echo 'Pipeline failed.'
+        }
+    }
+}
