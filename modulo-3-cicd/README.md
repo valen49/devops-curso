@@ -77,3 +77,20 @@ Declarative is the current industry standard.
 
 - Node.js is installed on every E2E run in Jenkins (slow, should be baked into image)
 - Prometheus Plugin pending (Jenkins II — last topic)
+
+## Prometheus Plugin
+
+Jenkins exposes metrics at `/prometheus` endpoint, scraped by Prometheus and visualized in Grafana.
+
+**Installation:** Manage Jenkins → Plugins → Available → Prometheus Metrics
+
+**Endpoint:** `http://<jenkins-url>:8080/prometheus`
+
+**Key metrics exposed:**
+- `default_jenkins_builds_health_score` — health score per job (0-100)
+- `default_jenkins_builds_last_build_duration_milliseconds` — last build duration per job
+- `default_jenkins_builds_last_stage_duration_milliseconds_summary` — duration per stage
+- `jenkins_queue_size_value` — number of builds waiting in queue
+- `jenkins_executor_in_use_value` — executors currently busy
+
+**Note:** Full Prometheus + Grafana integration covered in Module 8.
