@@ -111,3 +111,48 @@ docker pull username/image-name:tag
 
 **Key concept:** Image names follow the format `username/image-name:tag`.
 Official images (nginx, python, etc.) omit the username prefix.
+
+## Best Practices
+
+### 1. Minimal base image
+Always use the smallest image that works.
+python:3.11        → ~1.1GB
+python:3.11-slim   → ~124MB
+python:3.11-alpine → ~50MB
+Prefer `slim` over `alpine` for Python — Alpine can break C-based libraries.
+
+### 2. Layer order (cache optimization)
+Copy dependency files first, install, then copy code.
+Dependencies change rarely; code changes frequently.
+```dockerfile
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+```
+
+### 3. Non-root user
+Run the container process as an unprivileged user — principle of least privilege.
+```dockerfile
+RUN useradd -m appuser
+USER appuser
+```
+
+### 4. Multi-stage builds
+Use separate stages for build and production.
+The final image contains only the artifact, not build tools.
+```dockerfile
+# Stage 1: build
+FROM maven:3.9-eclipse-temurin-17 AS builder
+WORKDIR /app
+COPY pom.xml .
+RUN mvn dependency:resolve
+COPY src ./src
+RUN mvn package -DskipTests
+
+# Stage 2: production
+FROM eclipse-temurin:17-jre-slim
+WORKDIR /app
+COPY --from=builder /app/target/*.jar app.jar
+CMD ["java", "-jar", "app.jar"]
+```
+Result: Maven (~500MB) disappears from the final image. Only the JRE + JAR remain.
