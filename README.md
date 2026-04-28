@@ -5,7 +5,7 @@
 - [x] Module 1: Linux, Git, Bash
 - [x] Module 2: AWS, Azure, GCP
 - [x] Module 3: CI/CD - GitHub Actions, GitLab CI, CircleCI, Jenkins
-- [x] Module 4: Docker
+- [x] Module 4: Docker + Kubernetes
 - [ ] Module 5: Harbor, Build Tools, Quality
 - [ ] Module 6: IaC - Terraform, OpenTofu
 - [ ] Module 7: Security
