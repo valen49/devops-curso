@@ -1,0 +1,37 @@
+stages:
+  - build
+  - test
+  - deploy
+
+build:
+  stage: build
+  image: ubuntu:22.04
+  script:
+    - echo "Building application..."
+    - mkdir -p dist
+    - echo "version=1.0.0" > dist/build.txt
+    - cat dist/build.txt
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 hour
+
+test:
+  stage: test
+  image: ubuntu:22.04
+  script:
+    - echo "Running tests..."
+    - echo "Test 1: OK"
+    - echo "Test 2: OK"
+    - echo "Test 3: OK"
+    - echo "All tests passed"
+
+deploy:
+  stage: deploy
+  image: ubuntu:22.04
+  script:
+    - echo "Deploying application..."
+    - echo "Connecting to server..."
+    - echo "Deploy completed successfully"
+  only:
+    - main
