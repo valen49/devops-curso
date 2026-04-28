@@ -2,3 +2,4 @@ kubectl
 minikube-linux-amd64
 modulo-3-cicd/jenkins/java-maven-app/target/
 MEMORIA.md
+.claude/
