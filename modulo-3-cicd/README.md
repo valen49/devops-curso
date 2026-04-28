@@ -35,6 +35,24 @@ Uses Docker agents — each stage spins up a fresh container and destroys it whe
 - GitHub → ngrok tunnel → Jenkins
 - Triggers pipeline automatically on every push
 
+### GitLab CI
+Cloud-based CI tool integrated into GitLab. Configured via a single `.gitlab-ci.yml` file at the repo root. GitLab manages the runners — no external infrastructure needed for the basics.
+
+**Pipeline:** `gitlab-ci/.gitlab-ci.yml`
+- Stage 1: build — creates `dist/` artifact and passes it to the next stage
+- Stage 2: test — verifies output, runs after build completes
+- Stage 3: deploy — runs only on `main` branch
+
+**Key differences vs GitHub Actions:**
+
+| | GitHub Actions | GitLab CI |
+|---|---|---|
+| Config file | `.github/workflows/*.yml` | `.gitlab-ci.yml` (repo root) |
+| Job order | `needs:` between jobs | `stages:` list defines order |
+| Pass files between jobs | `upload-artifact` + `download-artifact` | `artifacts: paths:` (automatic) |
+| Branch filtering | `on: push: branches:` | `only:` / `rules:` per job |
+| Runner declaration | `runs-on:` | `image:` (Docker) or `tags:` (self-hosted) |
+
 ### CircleCI
 Cloud-based CI tool. Studied theoretically as part of the course.
 
