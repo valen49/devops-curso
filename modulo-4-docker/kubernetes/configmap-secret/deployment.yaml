@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: configmap-secret-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: configmap-secret-demo
+  template:
+    metadata:
+      labels:
+        app: configmap-secret-demo
+    spec:
+      containers:
+      - name: configmap-secret-demo
+        image: nginx:1.25
+        envFrom:
+        - configMapRef:
+            name: app-config
+        - secretRef:
+            name: app-secret
