@@ -9,11 +9,30 @@ Orden por coherencia conceptual (de lo más fundamental a lo más aplicado), no
 por orden de encuentros. Un bloque por vez; no se avanza al siguiente hasta
 cerrar el anterior.
 
-**Estado: ninguno arrancado todavía.**
+**Estado: Bloque 1 completo, Bloques 2-7 pendientes.**
 
 ## Bloques
 
-- [ ] **Bloque 1 — Namespaces & cgroups**: aislamiento a nivel kernel Linux (qué VE el contenedor vs. cuánto USA).
+- [x] **Bloque 1 — Namespaces & cgroups**: aislamiento a nivel kernel Linux (qué VE el contenedor vs. cuánto USA).
+
+### Bloque 1: Namespaces & cgroups — ✅ Completo
+
+**Concepto:**
+- Namespaces aíslan la VISTA de recursos del kernel (PID, red, mount, etc.) por grupo de procesos — no limitan consumo.
+- PID namespace: cada container tiene su propia numeración desde 1, independiente del PID real en el host. Si el PID 1 del namespace muere, todo el namespace (y el container) muere con él.
+- Network namespace: cada container tiene su propio stack de red completo (tabla de puertos, interfaces), por eso 10 containers pueden "tener" el puerto 80 sin chocar. El mapeo -p host:container conecta el namespace de red del container con el del host.
+- Cgroups limitan y contabilizan CPU/memoria/IO por grupo de procesos. Sin cgroups, un memory leak en un container puede consumir toda la RAM del host y activar el OOM Killer a nivel de todo el sistema (matando procesos al azar). Con cgroups, el OOM Killer actúa contenido dentro del cgroup específico.
+
+**Práctica realizada en cx-server:**
+- Confirmado con docker inspect + /proc/1/status: mismo proceso físico, dos PIDs distintos según namespace (host vs container).
+- Confirmado OOM Killer de cgroup en acción: container con --memory=50m corriendo `stress --vm-bytes 150M` terminó en Exited, con `docker inspect --format='{{.State.OOMKilled}}'` devolviendo true.
+
+**Troubleshooting aplicado:**
+- Caso: Pod en CrashLoopBackOff con Exit Code 137 en Kubernetes.
+- Diagnóstico: 137 = 128 + señal 9 (SIGKILL) = OOM Killer del kernel, no bug de código.
+- Causa raíz identificada en resources.limits.memory del manifiesto YAML, no en el Dockerfile ni en el código de la app.
+- Conclusión: "andaba bien en mi máquina" no contradice un OOM en cluster — el código es el mismo, el cgroup que lo rodea no.
+
 - [ ] **Bloque 2 — Docker networking**: los 4 drivers (bridge, host, overlay, macvlan) + Kubernetes NetworkPolicy.
 - [ ] **Bloque 3 — Persistencia**: 3 tipos de volumen Docker (anónimo, nombrado, bind mount) + Kubernetes PV/PVC/StorageClass.
 - [ ] **Bloque 4 — Healthchecking**: `HEALTHCHECK` de Dockerfile + probes de Kubernetes (liveness/readiness/startup).
