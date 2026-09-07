@@ -13,6 +13,14 @@
 ## Docker — límites de recursos
 - `docker run -d --memory=50m imagen` → limita RAM del container vía cgroups
 
+## Docker — volúmenes
+- `docker run -d --name X -v /datos imagen` → volumen anónimo, Docker le asigna un ID sin ruta legible
+- `docker run -d --name X -v /home/user/carpeta:/ruta/container imagen` → bind mount, conecta 1 a 1 una carpeta real del host (útil para hot-reload en desarrollo)
+- `docker run -d --name X -v nombre-volumen:/ruta/container imagen` → volumen nombrado, identificable y reutilizable entre containers
+- `docker exec X sh -c "comando"` → ejecuta un comando shell dentro de un container ya corriendo (útil para escribir/leer archivos de prueba)
+- `docker volume ls` → lista todos los volúmenes existentes en el host
+- `docker volume rm nombre-volumen` → borra un volumen (falla si algún container lo sigue usando)
+
 ## Kubernetes — básicos de consulta
 - `kubectl get pods -n NAMESPACE -o wide` → lista pods con IP y nodo
 - `kubectl describe pod X -n NAMESPACE` → detalle completo, incluye eventos (útil para ver OOMKilled, Exit Code, etc.)
