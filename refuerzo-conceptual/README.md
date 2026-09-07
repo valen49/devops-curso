@@ -61,6 +61,27 @@ Ver comandos-frecuentes.md para referencia rápida de CLI usada en los bloques.
 - Namespace de prueba limpiado al final (`kubectl delete namespace netpol-demo`).
 
 - [ ] **Bloque 3 — Persistencia**: 3 tipos de volumen Docker (anónimo, nombrado, bind mount) + Kubernetes PV/PVC/StorageClass.
+
+### Bloque 3: Docker volumes + K8s PV/PVC/StorageClass — 🔶 En curso (concepto cubierto, falta práctica)
+
+**Concepto — Docker volumes (los 3 tipos):**
+- Los containers son descartables por diseño; todo lo escrito sin volumen vive en la capa copy-on-write y se pierde con `docker rm`.
+- Anónimo (`-v /datos`): Docker asigna ID críptico, sirve para persistencia sin importar identificación ni reutilización.
+- Bind mount (`-v /host/ruta:/container/ruta`): conecta 1 a 1 una ruta real del host, sin copia. Probado en cx-server: al borrar la carpeta del host con el container corriendo, nginx quedó "Up" pero devolviendo 403 Forbidden — el container no se cae, pero pierde acceso al contenido real sin aviso. Dato de troubleshooting: útil para diagnosticar "container corriendo pero sirviendo errores" sin cambios de código/imagen.
+- Nombrado (`-v nombre:/datos`): gestionable, identificable, reutilizable entre containers. Probado en cx-server: escribimos un archivo, borramos el container por completo (`docker rm -f`), levantamos un container nuevo con distinto nombre montando el mismo volumen nombrado, y el archivo seguía intacto — confirma que el volumen vive independiente del ciclo de vida de cualquier container puntual.
+
+**Concepto — Kubernetes PV/PVC/StorageClass:**
+- Mismo patrón que el volumen nombrado de Docker, escalado a nivel cluster: los datos no pueden depender del ciclo de vida de un Pod específico (los Pods son aún más descartables que los containers).
+- PersistentVolume (PV): el recurso de almacenamiento real, existe independiente de cualquier Pod.
+- PersistentVolumeClaim (PVC): la solicitud que hace un Pod ("necesito X GB, con tal modo de acceso"). El Pod habla con el PVC, no directo con el PV.
+- StorageClass: define parámetros del backend (tipo de disco, proveedor) y permite provisión dinámica de PVs cuando aparece un PVC que los pide, sin crearlos a mano de antemano.
+- Confirmado conceptualmente (sin práctica aún): un Pod nuevo que reemplaza a uno caído, si declara el mismo PVC, se reconecta a los mismos datos del PV asociado.
+
+**PENDIENTE — retomar en la próxima sesión:**
+- Práctica real en Minikube: crear un PVC + Pod, escribir datos, borrar el Pod, recrear con el mismo PVC, confirmar persistencia (mismo patrón que se hizo con volumen nombrado en Docker).
+- No cubierto todavía: modos de acceso (ReadWriteOnce/ReadWriteMany/ReadOnlyMany), reclaim policy (Retain/Delete/Recycle), volúmenes efímeros vs emptyDir.
+- Ejercicio de troubleshooting del bloque: no realizado.
+
 - [ ] **Bloque 4 — Healthchecking**: `HEALTHCHECK` de Dockerfile + probes de Kubernetes (liveness/readiness/startup).
 - [ ] **Bloque 5 — Modelo de objetos K8s**: ReplicaSet (Pod→ReplicaSet→Deployment) + objeto Endpoint.
 - [ ] **Bloque 6 — Estrategias de despliegue**: RollingUpdate a fondo, Canary, Blue-Green.
