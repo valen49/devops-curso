@@ -11,6 +11,8 @@ cerrar el anterior.
 
 **Estado: Bloques 1-2 completos, Bloques 3-7 pendientes.**
 
+Ver comandos-frecuentes.md para referencia rápida de CLI usada en los bloques.
+
 ## Bloques
 
 - [x] **Bloque 1 — Namespaces & cgroups**: aislamiento a nivel kernel Linux (qué VE el contenedor vs. cuánto USA).
