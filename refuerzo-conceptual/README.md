@@ -9,7 +9,7 @@ Orden por coherencia conceptual (de lo más fundamental a lo más aplicado), no
 por orden de encuentros. Un bloque por vez; no se avanza al siguiente hasta
 cerrar el anterior.
 
-**Estado: Bloque 1 completo, Bloques 2-7 pendientes.**
+**Estado: Bloques 1-2 completos, Bloques 3-7 pendientes.**
 
 ## Bloques
 
@@ -33,7 +33,31 @@ cerrar el anterior.
 - Causa raíz identificada en resources.limits.memory del manifiesto YAML, no en el Dockerfile ni en el código de la app.
 - Conclusión: "andaba bien en mi máquina" no contradice un OOM en cluster — el código es el mismo, el cgroup que lo rodea no.
 
-- [ ] **Bloque 2 — Docker networking**: los 4 drivers (bridge, host, overlay, macvlan) + Kubernetes NetworkPolicy.
+- [x] **Bloque 2 — Docker networking**: los 4 drivers (bridge, host, overlay, macvlan) + Kubernetes NetworkPolicy.
+
+### Bloque 2: Docker networking + K8s NetworkPolicy — ✅ Completo
+
+**Concepto — Docker networking:**
+- Driver bridge (default): crea la interfaz docker0, cada container recibe IP privada, DNS embebido de Docker resuelve nombre de servicio → IP.
+- Riesgo de seguridad identificado: red bridge plana por default = cualquier container puede hablarle a cualquier otro sin restricción (ej. container de logging comprometido puede moverse lateralmente y llegar directo a la DB vía DNS interno).
+- Mitigación en Docker Compose: múltiples redes, cada container solo en las que estrictamente necesita (least privilege aplicado a networking).
+- host, overlay y macvlan quedaron como "cultura general" — no se profundizó en práctica, valorados como de uso poco frecuente en el día a día salvo casos específicos (overlay es usado indirectamente por K8s/Swarm; macvlan es nicho para legacy/IoT).
+
+**Concepto — Kubernetes NetworkPolicy:**
+- Por default, todos los Pods de un cluster K8s se hablan entre sí sin restricción (red plana, mismo problema que en Docker pero a escala de cluster).
+- Las IPs de Pods son efímeras (cambian en cada recreación), por eso NetworkPolicy usa labels + selectors (mismo mecanismo que Services/Deployments) en vez de IPs fijas.
+- Modelo mental: "portero con lista" — es un modelo whitelist, no blacklist. Sin política = puerta abierta. Con política aplicada a un Pod = solo entra lo explícitamente permitido, todo el resto queda bloqueado automáticamente. Borrar la política vuelve al estado original (puerta abierta), no queda "cerrado para siempre".
+- Namespace de Kubernetes (organización lógica de recursos) NO es lo mismo que namespace de kernel Linux (Bloque 1) — mismo término, capas distintas. Namespace K8s por sí solo NO aísla tráfico de red entre namespaces; NetworkPolicy sí.
+- Dato de troubleshooting: CoreDNS resuelve nombres de Services, no de Pods sueltos sin Service asociado (confirmado en la práctica: wget por nombre falló, por IP funcionó).
+
+**Práctica realizada en cx-server (Minikube + Calico):**
+- Minikube requirió reinstalación completa (binario no estaba presente, solo cache viejo) y recreación del cluster con `--driver=docker --cni=calico` (profile viejo usaba driver `none`, que requiere sudo y no era práctico).
+- Namespace de prueba `netpol-demo` con 3 pods: `db` (label tier=db, imagen nginx), `logging` (label tier=logging, sin permiso), `backend-test` (label tier=backend, con permiso).
+- Baseline sin política: logging → db, tráfico permitido (HTML de nginx recibido).
+- Aplicado NetworkPolicy `solo-backend-a-db` (podSelector tier=db, ingress solo desde tier=backend).
+- Resultado confirmado con Calico: logging → db bloqueado (timeout), backend-test → db permitido (HTML recibido). Ambos casos verificados con evidencia real de comandos.
+- Namespace de prueba limpiado al final (`kubectl delete namespace netpol-demo`).
+
 - [ ] **Bloque 3 — Persistencia**: 3 tipos de volumen Docker (anónimo, nombrado, bind mount) + Kubernetes PV/PVC/StorageClass.
 - [ ] **Bloque 4 — Healthchecking**: `HEALTHCHECK` de Dockerfile + probes de Kubernetes (liveness/readiness/startup).
 - [ ] **Bloque 5 — Modelo de objetos K8s**: ReplicaSet (Pod→ReplicaSet→Deployment) + objeto Endpoint.
