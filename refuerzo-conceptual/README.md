@@ -82,9 +82,9 @@ Ver comandos-frecuentes.md para referencia rápida de CLI usada en los bloques.
 - No cubierto todavía: modos de acceso (ReadWriteOnce/ReadWriteMany/ReadOnlyMany), reclaim policy (Retain/Delete/Recycle), volúmenes efímeros vs emptyDir.
 - Ejercicio de troubleshooting del bloque: no realizado.
 
-- [ ] **Bloque 4 — Healthchecking**: `HEALTHCHECK` de Dockerfile + probes de Kubernetes (liveness/readiness/startup).
+- [x] **Bloque 4 — Healthchecking**: `HEALTHCHECK` de Dockerfile + probes de Kubernetes (liveness/readiness/startup).
 
-### Bloque 4: HEALTHCHECK + K8s probes (liveness/readiness/startup) — 🔶 En curso (concepto y troubleshooting cubiertos, falta práctica)
+### Bloque 4: HEALTHCHECK + K8s probes (liveness/readiness/startup) — ✅ Completo
 
 **Concepto — Docker HEALTHCHECK:**
 - Un container en estado "Up" no garantiza que la aplicación funcione bien — el proceso puede estar vivo mientras la app está rota (ejemplo real: bind-demo del Bloque 3, "Up" pero devolviendo 403).
@@ -103,11 +103,13 @@ Ver comandos-frecuentes.md para referencia rápida de CLI usada en los bloques.
 - Diagnóstico: el readiness probe está dando falsos positivos — probablemente chequea un endpoint que responde 200 sin validar dependencias reales (ej. no mide latencia de DB), por lo que Kubernetes considera "listas" réplicas que en realidad están degradadas.
 - Acción real: revisar la definición del readinessProbe (`kubectl describe deployment`), revisar el código del endpoint de healthcheck, y mejorarlo para que refleje el estado real de las dependencias.
 
-**PENDIENTE — práctica hands-on acordada para la próxima sesión:**
-1. Docker HEALTHCHECK: container con un endpoint de salud que se pueda romper a propósito, observar en `docker ps` el cambio de estado `(healthy)` a `(unhealthy)`.
-2. K8s readiness probe: Pod con un endpoint de readiness togglable; al romperlo, confirmar con `kubectl get endpoints` que el Pod sale de los Endpoints del Service mientras `kubectl get pods` lo sigue mostrando `Running` (sin reiniciarse).
-3. Mismo experimento con liveness probe en vez de readiness, para contrastar: esta vez el Pod sí se reinicia (columna RESTARTS incrementa).
-4. Demo de startup probe con una app de arranque lento simulado, para ver en vivo el problema de loop de reinicios que evita.
+**Práctica realizada en cx-server:**
+- Docker HEALTHCHECK: container nginx con `--health-cmd="curl -f http://localhost/healthz || exit 1"` sobre un bind mount. Confirmado ciclo completo con evidencia real: borrar el archivo `healthz` → `docker ps` muestra `(unhealthy)` en ~10s (interval 5s × retries 2); recrear el archivo → vuelve a `(healthy)`.
+- Kubernetes readiness vs liveness, contraste directo en Minikube: dos Pods nginx idénticos, cada uno con un probe tipo `exec` (`cat /usr/share/nginx/html/healthz`) — uno como readinessProbe, otro como livenessProbe. Sin el archivo, resultado observado:
+  - Pod con readinessProbe: `Running`, `0` restarts, pero **sin Endpoints** en el Service creado con `kubectl expose` (confirmado con `kubectl get endpoints` vacío) — el Pod queda excluido de tráfico sin reiniciarse.
+  - Pod con livenessProbe: entró en `CrashLoopBackOff` con restarts crecientes. Confirmado con `kubectl describe pod` el evento explícito del kubelet: "Container nginx failed liveness probe, will be restarted".
+- Startup probe: no se hizo demo hands-on — Valen decidió saltarlo por ser conceptualmente redundante con el mismo mecanismo ya demostrado en readiness/liveness (probe que falla → Kubernetes reacciona).
+- Namespace de prueba (`probes-demo`) limpiado al final con `kubectl delete namespace`.
 
 - [ ] **Bloque 5 — Modelo de objetos K8s**: ReplicaSet (Pod→ReplicaSet→Deployment) + objeto Endpoint.
 - [ ] **Bloque 6 — Estrategias de despliegue**: RollingUpdate a fondo, Canary, Blue-Green.

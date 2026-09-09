@@ -40,3 +40,13 @@
 ## Minikube — setup
 - `minikube start --driver=docker --cni=calico` → levanta el cluster local con Calico (necesario para que NetworkPolicy funcione de verdad)
 - `minikube delete` → borra el cluster/profile completo, para empezar de cero
+
+## Docker — healthcheck
+- `docker run -d --name X --health-cmd="curl -f URL || exit 1" --health-interval=5s --health-timeout=3s --health-retries=2 imagen` → define un healthcheck en runtime (equivalente a HEALTHCHECK del Dockerfile, sin rebuildear)
+- `docker ps` → columna STATUS muestra `(healthy)` / `(unhealthy)` / `(health: starting)` cuando el container tiene healthcheck definido
+
+## Kubernetes — probes y exposición
+- `kubectl exec -n NAMESPACE POD -- sh -c "comando"` → ejecuta un comando shell dentro de un Pod (útil para simular cambios de estado en pruebas)
+- `kubectl expose pod X -n NAMESPACE --port=80 --name=Y` → crea un Service rápido apuntando a un Pod puntual (atajo para pruebas, no el flujo normal de producción vía Deployment)
+- `kubectl get endpoints -n NAMESPACE NOMBRE` → muestra a qué Pods reales le está mandando tráfico un Service ahora mismo (vacío si ningún Pod pasa el readiness probe)
+- `kubectl describe pod X -n NAMESPACE | tail -N` → ver solo los últimos eventos de un Pod (útil para ver el motivo exacto de un restart o CrashLoopBackOff)
