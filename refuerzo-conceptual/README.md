@@ -111,7 +111,18 @@ Ver comandos-frecuentes.md para referencia rápida de CLI usada en los bloques.
 - Startup probe: no se hizo demo hands-on — Valen decidió saltarlo por ser conceptualmente redundante con el mismo mecanismo ya demostrado en readiness/liveness (probe que falla → Kubernetes reacciona).
 - Namespace de prueba (`probes-demo`) limpiado al final con `kubectl delete namespace`.
 
-- [ ] **Bloque 5 — Modelo de objetos K8s**: ReplicaSet (Pod→ReplicaSet→Deployment) + objeto Endpoint.
+- [x] **Bloque 5 — Modelo de objetos K8s**: ReplicaSet (Pod→ReplicaSet→Deployment) + objeto Endpoint.
+
+### Bloque 5: Modelo de objetos K8s — ReplicaSet + Endpoint — ✅ Completo (solo concepto, sin práctica hands-on)
+
+**Concepto:**
+- Un Pod es frágil por sí solo: si desaparece por completo (nodo caído, borrado manual), nadie lo repone — a diferencia de un container reiniciado por el kubelet (ej. liveness probe fallido del Bloque 4), que ocurre DENTRO del mismo Pod, con el mismo nombre.
+- ReplicaSet: controlador que compara constantemente "cuántos Pods con cierta label existen" contra un número declarado (`replicas: N`). Solo actúa cuando el número real cae por debajo del declarado — no hace nada mientras coincide. Cuando repone un Pod, crea uno NUEVO con nombre distinto (sufijo generado), nunca reutiliza el nombre del Pod perdido.
+- Deployment envuelve al ReplicaSet y agrega rolling updates (reemplazo gradual de Pods al actualizar la imagen), algo que ReplicaSet solo no sabe hacer — por eso en la práctica casi nunca se crea un ReplicaSet directamente.
+- Objeto Endpoint: lista viva de IPs de Pods que un Service considera válidas para recibir tráfico ahora mismo, mantenida por un controlador separado que vigila el estado de `Ready` de cada Pod (mismo campo que gestionan los readiness probes del Bloque 4). Ya visto en la práctica del Bloque 4 sin nombrarlo formalmente entonces (`kubectl get endpoints` vacío mientras el Pod no era Ready).
+
+**Nota:** no se hizo práctica hands-on (crear Deployment de 3 réplicas, borrar un Pod a mano y ver el ReplicaSet reponerlo con nombre nuevo) ni el ejercicio de troubleshooting (Service con Endpoints incompletos por mismatch de labels/selector) — quedaron explicados pero no ejecutados, por decisión de Valen.
+
 - [ ] **Bloque 6 — Estrategias de despliegue**: RollingUpdate a fondo, Canary, Blue-Green.
 - [ ] **Bloque 7 — Gaps restantes de Docker I**: ARG vs ENV, sintaxis de naming de imágenes, anti-patrones.
 
