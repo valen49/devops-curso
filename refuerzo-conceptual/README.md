@@ -9,7 +9,7 @@ Orden por coherencia conceptual (de lo más fundamental a lo más aplicado), no
 por orden de encuentros. Un bloque por vez; no se avanza al siguiente hasta
 cerrar el anterior.
 
-**Estado: Bloques 1-2 completos, Bloques 3-7 pendientes.**
+**Estado: Bloques 1-7 completos. Plan de refuerzo conceptual cerrado.**
 
 Ver comandos-frecuentes.md para referencia rápida de CLI usada en los bloques.
 
@@ -135,8 +135,23 @@ Ver comandos-frecuentes.md para referencia rápida de CLI usada en los bloques.
 
 **Nota:** no se hizo práctica hands-on ni ejercicio de troubleshooting para este bloque — quedó cubierto solo a nivel conceptual, por decisión de Valen.
 
-- [ ] **Bloque 7 — Gaps restantes de Docker I**: ARG vs ENV, sintaxis de naming de imágenes, anti-patrones.
+- [x] **Bloque 7 — Gaps restantes de Docker I**: ARG vs ENV, sintaxis de naming de imágenes, anti-patrones.
+
+### Bloque 7: Gaps restantes de Docker I — ARG vs ENV, naming de imágenes, anti-patrones — ✅ Completo (solo concepto, sin práctica hands-on)
+
+**Concepto:**
+- ARG vs ENV: ARG es un valor disponible solo durante el build (`docker build`), no persiste en la imagen final. ENV persiste en runtime, disponible mientras el container corre. Nunca usar ENV para secretos (quedan visibles en la imagen final vía `docker inspect`/`docker history`); ARG es la opción correcta para valores efímeros de build (tokens de descarga, flags de compilación, etc.).
+- Sintaxis de naming: `[REGISTRY/]USUARIO/REPO[:TAG]`. Sin REGISTRY se asume docker.io; sin TAG se asume `latest`. `latest` es una etiqueta móvil que el mantenedor reapunta a la versión más reciente — dos pulls en momentos distintos pueden traer bits distintos sin que nadie cambie nada del lado del usuario. Alternativas: tag semántico (`1.29.0`, legible pero técnicamente reapuntable) o digest (`@sha256:...`, inmutable matemáticamente). Patrón recomendado: versionar doblemente — tag semántico para legibilidad humana (Dockerfile, docs), digest resuelto para garantías de inmutabilidad en pipelines de despliegue automatizado a producción.
+- Anti-patrón 1 — `docker exec` para modificar containers en producción: rompe la inmutabilidad (el cambio vive solo en la capa RW efímera, se pierde al recrear el container) y genera drift silencioso entre réplicas de un mismo Deployment que deberían ser idénticas.
+- Anti-patrón 2 — montar `/var/run/docker.sock` sin justificación: le da al container acceso directo al Docker daemon del host, permitiendo lanzar containers `--privileged` con acceso al filesystem raíz del host — rompe todo el aislamiento de namespaces/NetworkPolicy visto en Bloques 1 y 2.
+- Anti-patrón 3 — dejar containers detenidos sin limpiar: además de ocupar disco, genera ruido que dificulta distinguir problemas reales actuales de basura acumulada al monitorear (ejemplo real propio: `nginx-proxy` y `juice-shop`, muertos por OOM hacía 2 semanas, encontrados en el inventario de cx-server). Usar `--rm` en containers descartables o limpieza periódica (`docker system prune`).
+
+**Nota:** no se hizo práctica hands-on para este bloque — quedó cubierto solo a nivel conceptual, por decisión de Valen.
 
 ## Pendientes fuera del plan de refuerzo
 
 - Prácticas Profesionales (PP1-PP5): no documentadas en el repo. Identificadas como gap en MEMORIA.md, sin contenido materializado. Pendiente de decisión sobre si se abordan como parte del curso o se dejan fuera del alcance de devops-curso.
+
+---
+
+Plan de refuerzo conceptual completo (Bloques 1-7). Próximo paso: avance oficial del curso (Módulo 5, Encuentro 24 — Build & Package Tools) o los pendientes sueltos documentados en "Pendientes fuera del plan de refuerzo" (Jenkins, Prácticas Profesionales).
