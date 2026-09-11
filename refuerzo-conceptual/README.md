@@ -123,7 +123,18 @@ Ver comandos-frecuentes.md para referencia rápida de CLI usada en los bloques.
 
 **Nota:** no se hizo práctica hands-on (crear Deployment de 3 réplicas, borrar un Pod a mano y ver el ReplicaSet reponerlo con nombre nuevo) ni el ejercicio de troubleshooting (Service con Endpoints incompletos por mismatch de labels/selector) — quedaron explicados pero no ejecutados, por decisión de Valen.
 
-- [ ] **Bloque 6 — Estrategias de despliegue**: RollingUpdate a fondo, Canary, Blue-Green.
+- [x] **Bloque 6 — Estrategias de despliegue**: RollingUpdate a fondo, Canary, Blue-Green.
+
+### Bloque 6: Estrategias de despliegue — RollingUpdate, Recreate, Canary, Blue/Green — ✅ Completo (solo concepto, sin práctica hands-on)
+
+**Concepto:**
+- Recreate: apaga todas las réplicas viejas antes de levantar las nuevas. Ventana de indisponibilidad total, pero evita que versiones incompatibles convivan. Usar cuando el cambio (ej. de esquema de datos) es incompatible entre versiones.
+- RollingUpdate (default de Deployment): reemplazo gradual, viejas y nuevas conviven — requiere que las versiones sean compatibles entre sí (mismo Service enruta a ambas sin distinguir versión). Dos parámetros clave: `maxSurge` (capacidad extra temporal permitida por encima de las réplicas declaradas) y `maxUnavailable` (cuántas réplicas del total declarado se toleran no disponibles durante la transición). `minReadySeconds` evita falsos positivos de readiness durante el warm-up. Kubernetes guarda historial de ReplicaSets, permitiendo rollback.
+- Canary: se dirige un porcentaje chico de tráfico real (ej. 5%) a la versión nueva, monitoreando métricas (errores, latencia) antes de escalar gradualmente el porcentaje. Permite detectar problemas que solo aparecen con tráfico real de producción, a costa de exponer a una fracción de usuarios reales durante la prueba. Rollback es gradual (hay que desescalar).
+- Blue/Green: dos entornos completos y paralelos (Blue = versión actual en producción, Green = versión nueva en preparación, sin tráfico real hasta el switch). Switch instantáneo de todo el tráfico de una vez. Ningún usuario expuesto durante la preparación, pero problemas que solo aparecen con tráfico real de producción se detectan recién en el switch completo (a exposición total). Rollback instantáneo porque Blue nunca se apaga. Costo: recursos duplicados durante la convivencia.
+
+**Nota:** no se hizo práctica hands-on ni ejercicio de troubleshooting para este bloque — quedó cubierto solo a nivel conceptual, por decisión de Valen.
+
 - [ ] **Bloque 7 — Gaps restantes de Docker I**: ARG vs ENV, sintaxis de naming de imágenes, anti-patrones.
 
 ## Pendientes fuera del plan de refuerzo
