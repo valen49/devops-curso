@@ -94,7 +94,6 @@ Declarative is the current industry standard.
 ## Known Technical Debt
 
 - Node.js is installed on every E2E run in Jenkins (slow, should be baked into image)
-- Prometheus Plugin pending (Jenkins II — last topic)
 
 ## Prometheus Plugin
 
