@@ -26,6 +26,17 @@ El Encuentro 22 no exige estos temas, pero ya están documentados en `modulo-4-d
 
 Bloques 1-7 completos — ver [refuerzo-conceptual/README.md](refuerzo-conceptual/README.md) para el detalle de cada bloque (gaps de Docker I/II y Kubernetes I/II).
 
+## Prácticas Profesionales
+
+| Práctica | Estado | Nota |
+|---|---|---|
+| PP1 | N/A | Sin manual de esta práctica en el material del curso |
+| PP2 — Migración AWS→GCP | ❌ No realizada | |
+| PP3 | ❌ No realizada | |
+| PP4 — Docker/Kubernetes básico | ⚠️ Incierta | Se hizo en algún momento pero no está confirmado si el trabajo quedó documentado como tal, o si se solapa con `modulo-4-docker/` |
+| PP5 — Pipeline Node.js completo | ❌ No realizada | |
+| PP6 — Terraform/OpenTofu en AWS | ❌ No realizada | |
+
 ## Tools
 
 - Git / GitHub
