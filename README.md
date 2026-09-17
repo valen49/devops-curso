@@ -6,13 +6,13 @@
 - [x] Module 2: AWS, Azure, GCP
 - [x] Module 3: CI/CD - GitHub Actions, GitLab CI, CircleCI, Jenkins
 - [x] Module 4: Docker + Kubernetes
-- [ ] Module 5: Harbor, Build Tools, Quality
+- [ ] Module 5: Harbor, Build Tools, Quality (Encuentros 24-26 completos, ver `modulo-5-build-calidad/`; Encuentro 27 pendiente)
 - [ ] Module 6: IaC - Terraform, OpenTofu
 - [ ] Module 7: Security
 - [ ] Module 8: Monitoring - Prometheus, Grafana
 - [ ] Module 9: Integrative Project
 
-**Próximo avance oficial:** Módulo 5, Encuentro 24 (Build & Package Tools).
+**Próximo avance oficial:** Módulo 5, Encuentro 27 (Práctica Profesional 5).
 
 ### Kubernetes — cobertura por encima del temario oficial
 
