@@ -60,6 +60,8 @@ Ver comandos-frecuentes.md para referencia rápida de CLI usada en los bloques.
 - Resultado confirmado con Calico: logging → db bloqueado (timeout), backend-test → db permitido (HTML recibido). Ambos casos verificados con evidencia real de comandos.
 - Namespace de prueba limpiado al final (`kubectl delete namespace netpol-demo`).
 
+Ver manifiesto real: `manifiestos/netpol-solo-backend.yaml`
+
 - [ ] **Bloque 3 — Persistencia**: 3 tipos de volumen Docker (anónimo, nombrado, bind mount) + Kubernetes PV/PVC/StorageClass.
 
 ### Bloque 3: Docker volumes + K8s PV/PVC/StorageClass — 🔶 En curso (concepto cubierto, falta práctica)
@@ -110,6 +112,8 @@ Ver comandos-frecuentes.md para referencia rápida de CLI usada en los bloques.
   - Pod con livenessProbe: entró en `CrashLoopBackOff` con restarts crecientes. Confirmado con `kubectl describe pod` el evento explícito del kubelet: "Container nginx failed liveness probe, will be restarted".
 - Startup probe: no se hizo demo hands-on — Valen decidió saltarlo por ser conceptualmente redundante con el mismo mecanismo ya demostrado en readiness/liveness (probe que falla → Kubernetes reacciona).
 - Namespace de prueba (`probes-demo`) limpiado al final con `kubectl delete namespace`.
+
+Ver manifiestos reales: `manifiestos/pod-readiness.yaml`, `manifiestos/pod-liveness.yaml`
 
 - [x] **Bloque 5 — Modelo de objetos K8s**: ReplicaSet (Pod→ReplicaSet→Deployment) + objeto Endpoint.
 
