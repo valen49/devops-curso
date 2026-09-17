@@ -22,12 +22,9 @@ El Encuentro 22 no exige estos temas, pero ya están documentados en `modulo-4-d
 - Namespaces (`namespaces/`)
 - Ingress (`ingress/`)
 
-### Pendiente de cierre en Kubernetes (gap identificado, no exigido por temario)
+### Plan de refuerzo conceptual
 
-- StatefulSets
-- PersistentVolumes (PV/PVC/StorageClass)
-
-Ver [refuerzo-conceptual/](refuerzo-conceptual/README.md) para el plan que cubre estos y otros gaps de Docker I/II y Kubernetes I/II.
+Bloques 1-7 completos — ver [refuerzo-conceptual/README.md](refuerzo-conceptual/README.md) para el detalle de cada bloque (gaps de Docker I/II y Kubernetes I/II).
 
 ## Tools
 
